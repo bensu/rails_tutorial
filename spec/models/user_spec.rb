@@ -53,7 +53,7 @@ describe User do
 
     	it { should_not be_valid }
     end
-    describe "when passowrd is not present" do
+    describe "when password is not present" do
     	before do
     		@user = User.new(name: "Example User", email: "user@example.com",
     						password: " ", password_confirmation: " ")
@@ -73,9 +73,13 @@ describe User do
     	end
     	describe "with invalid password" do
     		let(:user_for_invalid_password) { found_user.authenticate("invalid") }
-    		it { should_not eq found_user.authenticate(@user.password) }
+    		it { should_not eq user_for_invalid_password }
     		specify { expect(user_for_invalid_password).to be_false }
     	end
     end
+    describe "with a password that's too short" do
+	 	before { @user.password = @user.password_confirmation = "a" * 5 }
+		it { should be_invalid }
+	end
 
 end
