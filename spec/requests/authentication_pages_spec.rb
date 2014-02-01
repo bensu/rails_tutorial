@@ -6,10 +6,16 @@ describe "AuthenticationPages" do
 	describe "signin page" do
 		before { visit signin_path }
 
+		it { should have_content('Sign in') }
+		it { should have_title('Sign in') }
+
 		describe "with invalid information" do
 			before { click_button "Sign in" } 
 
 			it { should have_content('Sign in') }
+			it { should_not have_link('Profile')  }
+			it { should_not have_link('Sign out') }
+			it { should_not have_link('Settings') }
 			it { should have_selector('div.alert.alert-error') }
 		end
 
@@ -22,6 +28,7 @@ describe "AuthenticationPages" do
 			it { should have_link('Profile',	href: user_path(user)) }
 			it { should have_link('Sign out',	href: signout_path) }
 			it { should_not have_link('Sign in',href: signin_path) }
+			# it { should_not have_link('Sign up now',href: signup_path) }
 			it { should have_link('Settings'), 	href: edit_user_path(user) }
 
 			describe "followed by signout" do
@@ -29,9 +36,6 @@ describe "AuthenticationPages" do
 				it { should have_link('Sign in') }
 			end
 		end
-
-		it { should have_content('Sign in') }
-		it { should have_title('Sign in') }
 	end
 	describe "authorization" do
 
@@ -64,6 +68,18 @@ describe "AuthenticationPages" do
 						expect(page).to have_title("Edit user")
 					end
 				end
+				describe "when signin in again" do
+					before do
+						delete signout_path
+						visit signin_path
+						fill_in "Email",    with: user.email
+						fill_in "Password", with: user.password
+						click_button "Sign in"
+					end
+					it "should render the default (profile) page" do
+						expect(page).to have_title(full_title(user.name))
+					end
+				end
 			end
 		end
 		describe "as wrong user" do
@@ -85,11 +101,24 @@ describe "AuthenticationPages" do
 			let(:user) { FactoryGirl.create(:user) }
 			let(:none_admin) { FactoryGirl.create(:user) }
 
+			# It needs to login differently than in "with valid information" since 
+			# the before_action filter responsible for the redirect checks the session 
+			# data and capybara doesn't provide it
 			before { sign_in none_admin, no_capybara: true }
 
 			describe "submitting a DELETE request to the Users#destroy action" do
 				before { delete user_path(user) }
 				specify { expect(response).to redirect_to(root_url) }
+			end
+			describe  "submitting a GET request to the Users#new action" do
+				before { get '/users/new' }
+				specify { expect(response).to redirect_to(root_url) }
+				specify { expect(response.body).not_to match(full_title('Sign up')) }
+			end
+			describe "submitting a POST request to the Users#create action" do
+				before { post '/users' }
+				specify { expect(response).to redirect_to(root_url) }
+				specify { expect(response.body).not_to match(full_title('Sign up')) }
 			end
 		end
 	end

@@ -21,10 +21,15 @@ module SessionsHelper
 		user == current_user
 	end
 	def sign_out
-		current_user.update_attribute(:remember_token,
-				User.encrypt(User.new_remember_token))
-		cookies.delete(:remember_token)
-		self.current_user = nil
+		# Check to be signed in before signin out.
+		if signed_in?
+			# current_user is not cheap & should not be repeated
+			# in conditional and current_user.update_attribute(...)
+			current_user.update_attribute(:remember_token,
+					User.encrypt(User.new_remember_token))
+			cookies.delete(:remember_token)
+			self.current_user = nil
+		end
 	end
 	def redirect_back_or(default)
 		redirect_to(session[:return_to] || default)
