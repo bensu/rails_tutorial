@@ -81,7 +81,17 @@ describe "AuthenticationPages" do
 					end
 				end
 			end
-		end
+			describe "in the Microposts controller" do
+				describe "submitting the create action" do
+					before { post microposts_path }
+					specify { expect(response).to redirect_to(signin_path) }
+				end
+				describe "submitting the destroy action" do
+					before { delete micropost_path(FactoryGirl.create(:micropost)) }
+					specify { expect(response).to redirect_to(signin_path) }
+				end
+			end
+		end 
 		describe "as wrong user" do
 			let(:user) { FactoryGirl.create(:user) }
 			let(:wrong_user) { FactoryGirl.create(:user, email: "wrong@example.com") }

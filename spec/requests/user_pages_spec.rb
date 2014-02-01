@@ -40,10 +40,18 @@ describe "UserPages" do
 
 	describe "profile page" do
 		let(:user) { FactoryGirl.create(:user) }
+		let!(:m1) { FactoryGirl.create(:micropost, user: user, created_at: 1.hour.ago) }
+		let!(:m2) { FactoryGirl.create(:micropost, user: user, created_at: 2.hour.ago) }
 		before { visit user_path(user) }
 
 		it { should have_content(user.name) }
 		it { should have_title(user.name) }
+
+		describe "mircoposts" do
+			it { should have_content(m1.content) }
+			it { should have_content(m2.content) }
+			it { should have_content(user.microposts.count) }
+		end
 	end
 
 	describe "edit" do
