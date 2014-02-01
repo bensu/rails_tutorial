@@ -32,8 +32,17 @@ describe "StaticPages" do
 					expect(page).to have_selector("li##{item.id}", text: item.content)
 				end
 			end
-			
-			it { should have_content(user.microposts.count) }
+			it { should have_content("view my profile") }
+			# JS generated content can't be tested from rspec?
+=begin
+it { should have_content("#{user.microposts.count} microposts") }
+
+it { should have_content("140 characters left") }
+describe "should count characters while writing" do
+	before { fill_in "Compose new micropost...", with: "a" }
+	it { should have_content("139 characters left")}
+end
+=end
 		end
 	end
 
