@@ -1,5 +1,9 @@
 FirstApp::Application.routes.draw do
-  resources :users
+  resources :users do
+    member do
+      get :following, :followers
+    end
+  end
   resources :sessions, only: [:new, :create, :destroy]
   root  'static_pages#home'
   match '/help',    to: 'static_pages#help',    via: 'get'
@@ -10,7 +14,7 @@ FirstApp::Application.routes.draw do
   match '/sessions',to: 'sessions#create',      via: 'post'
   match '/signout', to: 'sessions#destroy',     via: 'delete'
   resources :microposts, only: [:create, :destroy]
-
+  resources :relationships, only: [:create, :destroy]
 
 
   # The priority is based upon order of creation: first created -> highest priority.
