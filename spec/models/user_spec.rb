@@ -42,6 +42,14 @@ describe User do
 			it { should_not be_following(other_user) }
 			its(:followed_users) { should_not include(other_user) }
 		end
+		it "should destroy associated relationships" do
+			relationships = @user.relationships.to_a
+			@user.destroy
+			expect(relationships).not_to be_empty
+			relationships.each do |r|
+				expect(Relationship.where(id: r.id)).to be_empty
+			end
+		end
 	end
 
 	describe "with admin attribute set to true" do
